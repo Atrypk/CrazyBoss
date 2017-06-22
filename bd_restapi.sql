@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-06-2017 a las 21:53:15
+-- Tiempo de generación: 22-06-2017 a las 21:09:58
 -- Versión del servidor: 5.7.9
 -- Versión de PHP: 5.6.16
 
@@ -23,6 +23,22 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `favoritos`
+--
+
+DROP TABLE IF EXISTS `favoritos`;
+CREATE TABLE IF NOT EXISTS `favoritos` (
+  `id_nota` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  KEY `fk_ID_usuario` (`id_usuario`),
+  KEY `fk_ID_nota` (`id_nota`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `notas`
 --
 
@@ -34,7 +50,8 @@ CREATE TABLE IF NOT EXISTS `notas` (
   `ID_usuario` int(11) NOT NULL,
   PRIMARY KEY (`ID_nota`),
   KEY `fk_ID_usuario` (`ID_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+
 
 -- --------------------------------------------------------
 
