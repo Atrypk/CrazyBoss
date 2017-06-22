@@ -11,7 +11,11 @@ $ERROR_LOGIN = 'Error, intentelo de nuevo.';
 $DESCONEXION_CORRECTA = 'Te has desconectado.';
 $SIN_NOTAS_FAVORITAS = 'No tiene ninguna nota en sus favoritos.';
 $NO_EXISTEN_NOTAS = 'No existe ninguna nota, si te das prisa podras ser el primero.';
+$CREADA_NOTA = 'Nota creada correctamente.';
 $MARCADA_FAVORITA = 'Has marcado esta nota como favorita.';
+$PARAMETROS_INCORRECTOS = 'Revise los parametros e intentelo de nuevo por favor.';
+$NO_EXISTE_NOTA_CONCRETA = 'No se encontraron datos de la nota buscada.';
+$NO_EXISTE_NOTA_PARA_FAVORITA = 'No se encontro la nota que quiere marcar como favorita';
 
 /*
 header("Access-Control-Allow-Origin: *"); //Api publica
@@ -117,6 +121,14 @@ $app->get('/desconectar', function ($request, $response, $args) {
 
 });
 
+$app->get('/pruebas', function ($request, $response, $args) {
+    
+
+    //Lanzamos la desconexion
+    echo pruebas();
+
+});
+
 //Gestion y administracion
 
 //Crear usuario
@@ -126,7 +138,20 @@ $app->run();
 
 //Funciones
 
+/**
+* Creacion de notas
+*
+* Envio de parametros titulo 
+* y contenido para crear
+* una nota
+*/
 function crearNota($titulo, $contenido){
+    
+    //Comprobacion de parametros
+    if(empty ($titulo) || empty($contenido) ){
+        return $GLOBALS['PARAMETROS_INCORRECTOS'];
+    }
+
     if(comprobarSession()){
         
         $idUsuario=obtenerIdUsuario();
@@ -138,11 +163,18 @@ function crearNota($titulo, $contenido){
         
         
         desconectar($link);
-        return true;    
+        return $GLOBALS['CREADA_NOTA'];;    
     }
     return $GLOBALS['AVISO_DESCONECTADO'];
 }  
 
+/**
+* Consultar todas las notas
+*
+* Se recive un json con 
+* todas las notas guardadas
+* en la base de datos
+*/
 function consultarTodasLasNotas(){
     if(comprobarSession()){
         $link=conectar();
@@ -173,7 +205,20 @@ function consultarTodasLasNotas(){
     return $GLOBALS['AVISO_DESCONECTADO'];
 }  
 
+/**
+* Consulta de una nota en concreto
+*
+* Se envia el id de la nota
+* a consultar y la funcion
+* devuelve un json con sus datos
+*/
 function consultarNota($idNota){
+
+    //Comprobacion de parametros
+    if(empty ($idNota) || !is_numeric($idNota) ){
+        return $GLOBALS['PARAMETROS_INCORRECTOS'];
+    }
+
     if(comprobarSession()){
         $link=conectar();
         
@@ -181,7 +226,12 @@ function consultarNota($idNota){
         
         $result=mysqli_query($link, $sql);
         $return= mysqli_fetch_assoc($result);
-        
+
+        //Comprobacion de recepcion de datos
+        if(empty ($return['titulo']) || empty ($return["contenido"])){
+            return $GLOBALS['NO_EXISTE_NOTA_CONCRETA'];
+        }
+
         $json_Nota = '{"Notas": [{ "titulo":'. $return['titulo'] . ', "contenido":' . $return["contenido"] . '}]}';
 
         desconectar($link);
@@ -191,7 +241,24 @@ function consultarNota($idNota){
     return $GLOBALS['AVISO_DESCONECTADO'];
 }
 
+/**
+* Marcar nota como favorita
+*
+* Se envia el ID de  
+* la nota que se desea
+* establecer como favorita
+*/
 function marcarFavorita($idNota){
+
+    //Comprobacion de parametros
+    if(empty ($idNota) || !is_numeric($idNota) ){
+        return $GLOBALS['PARAMETROS_INCORRECTOS'];
+    }
+
+    if(consultarNota($idNota)==$GLOBALS['NO_EXISTE_NOTA_CONCRETA']){
+        return $GLOBALS['NO_EXISTE_NOTA_PARA_FAVORITA'];
+    }
+
     if(comprobarSession()){
         $link=conectar();
                 
@@ -208,6 +275,13 @@ function marcarFavorita($idNota){
     return $GLOBALS['AVISO_DESCONECTADO'];
 }
 
+/**
+* Consultar notas favoritas
+*
+* Se recive un json con todas
+* las notas marcadas como
+*  favoritas por ese usuario
+*/
 function consultarFavoritas(){
     if(comprobarSession()){
         $link=conectar();
@@ -256,6 +330,13 @@ function consultarFavoritas(){
     return $GLOBALS['AVISO_DESCONECTADO'];
 }
 
+/**
+* Obtener el id del usuario conectado
+*
+* La funcion devuelve el
+* id correspondiente al usuario
+* que esta conectado
+*/
 function obtenerIdUsuario(){
     if(comprobarSession()){
         $link=conectar();
@@ -273,6 +354,13 @@ function obtenerIdUsuario(){
     }
 }
 
+/**
+* Comprobar la sesion
+*
+* La funcion devuelve el
+* estado de la sesion actual
+* del usuario
+*/
 function comprobarSession(){
     if (isset($_SESSION["nombre_usuario"])){
         return true;
@@ -280,6 +368,14 @@ function comprobarSession(){
     return false;
 }
 
+/**
+* Conectarse
+*
+* La funcion recibe el usuario
+* y la contraseña y la coteja con
+* la base de datos conectando o no
+* al usuario
+*/
 function conectarse($usuario,$pass){
 		
     $link=conectar();
@@ -302,10 +398,47 @@ function conectarse($usuario,$pass){
     return $GLOBALS['ERROR_LOGIN'];
 }
 
+/**
+* Desconectarse
+*
+* La funcion elimina los datos
+* de sesion desconectando al 
+* usuario actualmente logeado
+*/
 function desconectarse(){
     session_destroy();
 
     return $GLOBALS['DESCONEXION_CORRECTA'];
+}
+
+/**
+* Pruebas
+*
+* La funcion devuelve el
+* resultado de las pruebas 
+* realizadas a las funciones
+* de este fichero
+*/
+function pruebas(){
+    //Vamos a realizar las pruebas de las funciones en base a lo que NO deberian permitir
+
+    //Creacion de notas con algun parametro vació
+    echo 'Prueba creacion de notas con dos parametros vacios: Respuesta -> ' . crearNota("","") . '<br />';
+    echo 'Prueba creacion de notas con parametro titulo vacio: Respuesta -> ' . crearNota("","contenido") . '<br />';
+    echo 'Prueba creacion de notas con parametro contenido vacio: Respuesta -> ' . crearNota("titulo","") . '<br />';
+
+    //Consulta de nota concreta enviando un parametro que no sea numero
+    echo 'Prueba consulta de notas concreta enviando una cadena de texto: Respuesta -> ' . consultarNota("texto") . '<br />';
+
+    //Consulta de nota concreta enviando un ID que no existe 
+    echo 'Prueba consulta de notas concreta enviando un ID que no existe: Respuesta -> ' . consultarNota(99999) . '<br />';
+
+    //Marcar nota favorita enviando un parametro que no sea numerico
+    echo 'Prueba marcar nota como favorita enviando una cadena de texto: Respuesta -> ' . marcarFavorita("texto") . '<br />';
+
+    //Marcar nota favorita enviando un ID que no existe 
+    echo 'Prueba consulta de notas concreta enviando un ID que no existe: Respuesta -> ' . marcarFavorita(99999) . '<br />';
+
 }
 
 ?>

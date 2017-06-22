@@ -1,9 +1,9 @@
 # CrazyBoss
 
-Versiones de software en desarrollo:
-	*PHP - 5.6.16
-	*MySql - 5.7.9
-	*Slim Framework - 3.8.1
+	Versiones de software en desarrollo:
+		*PHP - 5.6.16
+		*MySql - 5.7.9
+		*Slim Framework - 3.8.1
 
 	///////////////////////////
 	//Configuración necesaria//
@@ -83,3 +83,6 @@ Versiones de software en desarrollo:
 
 	//Consultar favoritas
 	Para consultar las notas favoritas hacemos una peticion GET a la ruta TuServidor/trunk/restapi/gamma/consultarNotasFavoritas
+
+	//Pruebas
+	Para ver el resultado de las pruebas hacemos una peticion GET a la ruta TuServidor/trunk/restapi/gamma/pruebas
